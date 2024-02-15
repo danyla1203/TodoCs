@@ -44,5 +44,18 @@ public class TodoController : ControllerBase
         
         return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
     }
+
+    [HttpDelete(Name = "DeleteTodoItem")]
+    public ActionResult<TodoItem> DeleteTodoItem(int id)
+    {
+        TodoItem? record = _unit.TodoRepository.Delete(id);
+        _unit.Save();
+        if (record == null)
+        {
+            return NotFound();
+        }
+        return record;
+
+    }
 }
 

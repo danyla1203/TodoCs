@@ -18,10 +18,10 @@ public class BaseRepository<TEntity>: IRepositoryBase<TEntity>
         _table.Add(item);
         return item;
     }
-    public TEntity? Delete(TEntity item)
+    public TEntity? Delete(int id)
     {
-        TEntity? record = _table.Find(item);
-        _table.Remove(item);
+        TEntity? record = _table.Find((long)id);
+        if (record != null) _table.Remove(record);
         return record;
     }
 
