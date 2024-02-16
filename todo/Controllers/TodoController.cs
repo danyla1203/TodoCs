@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using todo.Models;
 using todo.Repositories;
+using todo.Services;
 
 namespace todo.Controllers;
 
@@ -9,53 +10,43 @@ namespace todo.Controllers;
 public class TodoController : ControllerBase
 {
     private readonly ILogger<TodoController> _logger;
-    private readonly UnitOfWork _unit;
-
+    private readonly TodoService _service;
     public TodoController(UnitOfWork unit, ILogger<TodoController> logger)
     {
         _logger = logger;
-        _unit = unit;
-
+        _service = new TodoService(unit);
     }
 
     [HttpGet(Name = "GetTodoItems")]
-    public IEnumerable<TodoItem> GetTodoItems()
-    {
-        return _unit.TodoRepository.GetAll();
-    }
+    public IEnumerable<TodoItem> GetTodoItems() => _service.GetTodoList();
 
     [HttpGet("{id}", Name = "GetTodoById")]
     public ActionResult<TodoItem> GetTodoItem(int id)
     {
-        TodoItem item = _unit.TodoRepository.GetById(id);
-        if (item == null)
-        {
-            return NotFound();
-        }
-        return item;
-    }
-
-
-    [HttpPost(Name = "AddTodoItem")]
-    public ActionResult<TodoItem> AddTodoItem(TodoItem todoItem)
-    {
-        _unit.TodoRepository.AddItem(todoItem);
-        _unit.Save();
-        
-        return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
-    }
-
-    [HttpDelete(Name = "DeleteTodoItem")]
-    public ActionResult<TodoItem> DeleteTodoItem(int id)
-    {
-        TodoItem? record = _unit.TodoRepository.Delete(id);
-        _unit.Save();
+        TodoItem? record = _service.GetTodoItem(id);
         if (record == null)
         {
             return NotFound();
         }
         return record;
+    }
 
+    [HttpPost(Name = "AddTodoItem")]
+    public ActionResult<TodoItem> AddTodoItem(TodoItem todoItem)
+    {
+        TodoItem newRecord = _service.AddTodoItem(todoItem);
+        return CreatedAtAction(nameof(GetTodoItem), new { id = newRecord.Id }, newRecord);
+    }
+
+    [HttpDelete(Name = "DeleteTodoItem")]
+    public ActionResult<TodoItem> DeleteTodoItem(int id)
+    {
+        TodoItem? deleted = _service.DeleteTodoItem(id);
+        if (deleted == null)
+        {
+            return NotFound();
+        }
+        return deleted;
     }
 }
 
