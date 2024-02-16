@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using todo.Data;
 using todo.Data.Repositories;
+using todo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<UnitOfWork>();
+builder.Services.AddScoped<ITodoService, TodoService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("ApplicationContext")));

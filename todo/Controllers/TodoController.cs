@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using todo.Models;
-using todo.Data.Repositories;
 using todo.Services;
 
 namespace todo.Controllers;
@@ -11,10 +10,10 @@ public class TodoController : ControllerBase
 {
     private readonly ILogger<TodoController> _logger;
     private readonly ITodoService _service;
-    public TodoController(UnitOfWork unit, ILogger<TodoController> logger)
+    public TodoController(ITodoService service, ILogger<TodoController> logger)
     {
         _logger = logger;
-        _service = new TodoService(unit);
+        _service = service;
     }
 
     [HttpGet(Name = "GetTodoItems")]
