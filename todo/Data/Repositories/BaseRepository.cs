@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace todo.Repositories;
+namespace todo.Data.Repositories;
 public class BaseRepository<TEntity>: IRepositoryBase<TEntity>
     where TEntity : class
 {

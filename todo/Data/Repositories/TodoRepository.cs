@@ -1,7 +1,7 @@
 ﻿using todo.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace todo.Repositories;
+namespace todo.Data.Repositories;
 
 public class TodoRepository : BaseRepository<TodoItem>
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using todo.Models;
-using todo.Repositories;
+using todo.Data;
+using todo.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +15,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

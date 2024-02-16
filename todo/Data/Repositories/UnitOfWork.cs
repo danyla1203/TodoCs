@@ -1,5 +1,4 @@
-﻿using todo.Models;
-namespace todo.Repositories;
+﻿namespace todo.Data.Repositories;
 
 public class UnitOfWork
 {

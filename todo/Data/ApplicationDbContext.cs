@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
-namespace todo.Models;
+using todo.Models;
+namespace todo.Data;
 
 public class ApplicationDbContext : DbContext
 {

@@ -1,5 +1,5 @@
 ﻿using todo.Models;
-using todo.Repositories;
+using todo.Data.Repositories;
 
 namespace todo.Services;
 

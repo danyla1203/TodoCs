@@ -1,4 +1,4 @@
-﻿namespace todo.Repositories;
+﻿namespace todo.Data.Repositories;
 
 public interface IRepositoryBase<T> where T : class
 {
