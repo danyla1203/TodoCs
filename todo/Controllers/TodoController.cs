@@ -10,7 +10,7 @@ namespace todo.Controllers;
 public class TodoController : ControllerBase
 {
     private readonly ILogger<TodoController> _logger;
-    private readonly TodoService _service;
+    private readonly ITodoService _service;
     public TodoController(UnitOfWork unit, ILogger<TodoController> logger)
     {
         _logger = logger;

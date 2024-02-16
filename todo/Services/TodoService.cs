@@ -3,7 +3,7 @@ using todo.Data.Repositories;
 
 namespace todo.Services;
 
-public class TodoService
+public class TodoService : ITodoService
 {
     private readonly UnitOfWork _unit;
 
