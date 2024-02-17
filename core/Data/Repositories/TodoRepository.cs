@@ -7,7 +7,5 @@ public class TodoRepository : BaseRepository<TodoItem>, ITodoRepository
 {
     public TodoRepository(DbSet<TodoItem> context)
         : base(context)
-{ }
-
-
+    {}
 }
