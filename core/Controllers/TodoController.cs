@@ -17,9 +17,12 @@ public class TodoController : ControllerBase
     }
 
     [HttpGet(Name = "GetTodoItems")]
+    [Produces("application/json")]
     public IEnumerable<TodoItem> GetTodoItems() => _service.GetTodoList();
 
     [HttpGet("{id}", Name = "GetTodoById")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<TodoItem> GetTodoItem(int id)
     {
         TodoItem? record = _service.GetTodoItem(id);
@@ -31,6 +34,9 @@ public class TodoController : ControllerBase
     }
 
     [HttpPost(Name = "AddTodoItem")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public ActionResult<TodoItem> AddTodoItem(TodoItem todoItem)
     {
         TodoItem newRecord = _service.AddTodoItem(todoItem);
@@ -38,6 +44,8 @@ public class TodoController : ControllerBase
     }
 
     [HttpDelete(Name = "DeleteTodoItem")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<TodoItem> DeleteTodoItem(int id)
     {
         TodoItem? deleted = _service.DeleteTodoItem(id);
