@@ -1,13 +1,12 @@
 ﻿using todo.Models;
-using todo.Data.Repositories;
 
 namespace todo.Services;
 
 public class TodoService : ITodoService
 {
-    private readonly UnitOfWork _unit;
+    private readonly IUnitOfWork _unit;
 
-    public TodoService(UnitOfWork unit)
+    public TodoService(IUnitOfWork unit)
     {
         _unit = unit;
     }

@@ -5,7 +5,7 @@ using todo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<UnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITodoService, TodoService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>

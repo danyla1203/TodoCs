@@ -1,9 +1,9 @@
 ﻿namespace todo.Data.Repositories;
 
-public class UnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
     private ApplicationDbContext _context;
-    private TodoRepository _todoRepository;
+    private ITodoRepository _todoRepository;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -11,7 +11,7 @@ public class UnitOfWork
         _todoRepository = new TodoRepository(context.TodoItems);
     }
 
-    public TodoRepository TodoRepository
+    public ITodoRepository TodoRepository
     {
         get
         {
