@@ -5,7 +5,7 @@ namespace todo.Services;
 
 public interface ITodoService
 {
-  TodoListDto GetTodoList(bool? completed);
+  List<TodoItem> GetTodoList(bool? completed);
   TodoItem? GetTodoItem(int id);
   TodoItem AddTodoItem(TodoItem todoItem);
   TodoItem? DeleteTodoItem(int id);

@@ -19,7 +19,7 @@ public class TodoServiceUnitTest
     [Fact]
     public void GetTodoList_WithoutParams()
     {
-        var stub = new TodoListDto { count = 0, items = new List<TodoItemDto>() };
+        var stub = new List<TodoItem>();
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo
             .Setup(rep => rep.GetAll(It.IsAny<Expression<Func<TodoItem, bool>>>()))
@@ -28,8 +28,7 @@ public class TodoServiceUnitTest
         TodoService service = new TodoService(mockUnit.Object);
 
         var result = service.GetTodoList();
-        Assert.Equal(stub.count, result.count);
-        Assert.Equal(stub.items, result.items);
+        Assert.Equal(stub, result);
     }
 
     [Fact]
@@ -53,8 +52,7 @@ public class TodoServiceUnitTest
                 Name = dbStub[0].Name
             }
         };
-        Assert.Equal(1, result.count);
-        result.items.Should().BeEquivalentTo(expected);
+        result.Should().BeEquivalentTo(expected);
     }
 
     [Fact]

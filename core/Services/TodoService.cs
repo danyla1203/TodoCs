@@ -12,20 +12,12 @@ public class TodoService : ITodoService
         _unit = unit;
     }
 
-    public TodoListDto GetTodoList(bool? completed = null)
+    public List<TodoItem> GetTodoList(bool? completed = null)
     {
-        List<TodoItem> items = _unit.TodoRepository.GetAll(
+        return _unit.TodoRepository.GetAll(
             completed != null ?
             todo => todo.IsComplete == completed : null
         );
-        var list = from i in items
-                   select new TodoItemDto
-                   {
-                       Id = i.Id,
-                       Name = i.Name,
-                       IsComplete = i.IsComplete
-                   };
-        return new TodoListDto { count = items.Count, items = list.ToList() };
     }
 
     public TodoItem? GetTodoItem(int id)
