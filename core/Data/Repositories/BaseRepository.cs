@@ -12,8 +12,11 @@ public class BaseRepository<TEntity> : IRepositoryBase<TEntity>
         _table = table;
     }
 
-    public TEntity? GetById(int id) => _table.Find((long)id);
-    public virtual List<TEntity> GetAll(
+    public async Task<TEntity?> GetById(int id)
+    {
+        return await _table.FindAsync((long)id);
+    }
+    public async virtual Task<List<TEntity>> GetAll(
         Expression<Func<TEntity, bool>>? filter = null
     )
     {
@@ -22,16 +25,16 @@ public class BaseRepository<TEntity> : IRepositoryBase<TEntity>
         {
             query = query.Where(filter);
         }
-        return query.ToList();
+        return await query.ToListAsync();
     }
-    public TEntity AddItem(TEntity item)
+    public async Task<TEntity> AddItem(TEntity item)
     {
-        _table.Add(item);
+        await _table.AddAsync(item);
         return item;
     }
-    public TEntity? Delete(int id)
+    public async Task<TEntity?> Delete(int id)
     {
-        TEntity? record = _table.Find((long)id);
+        TEntity? record = await _table.FindAsync((long)id);
         if (record != null) _table.Remove(record);
         return record;
     }

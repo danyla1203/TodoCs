@@ -27,9 +27,9 @@ public class TodoController : ControllerBase
 
     [HttpGet(Name = "GetTodoItems")]
     [Produces("application/json")]
-    public TodoListDto GetTodoItems(bool? completed)
+    public async Task<TodoListDto> GetTodoItems(bool? completed)
     {
-        List<TodoItem> items = _service.GetTodoList(completed);
+        List<TodoItem> items = await _service.GetTodoList(completed);
         return new TodoListDto
         {
             count = items.Count,
@@ -40,9 +40,9 @@ public class TodoController : ControllerBase
     [HttpGet("{id}", Name = "GetTodoById")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<TodoItemDto> GetTodoItem(int id)
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem(int id)
     {
-        TodoItem? record = _service.GetTodoItem(id);
+        TodoItem? record = await _service.GetTodoItem(id);
         return record != null ?
             _mapper.Map<TodoItem, TodoItemDto>(record) :
             NotFound("Todo item not found");
@@ -52,11 +52,11 @@ public class TodoController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<TodoItemDto> AddTodoItem(TodoItem todoItem)
+    public async Task<ActionResult<TodoItemDto>> AddTodoItem(TodoItem todoItem)
     {
         try
         {
-            TodoItem newRecord = _service.AddTodoItem(todoItem);
+            TodoItem newRecord = await _service.AddTodoItem(todoItem);
             return CreatedAtAction(
                 nameof(GetTodoItem),
                 new { id = newRecord.Id },
@@ -72,11 +72,11 @@ public class TodoController : ControllerBase
     [HttpDelete(Name = "DeleteTodoItem")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<TodoItemDto> DeleteTodoItem(int id)
+    public async Task<ActionResult<TodoItemDto>> DeleteTodoItem(int id)
     {
         try
         {
-            TodoItem? deleted = _service.DeleteTodoItem(id);
+            TodoItem? deleted = await _service.DeleteTodoItem(id);
             return deleted != null ?
                 _mapper.Map<TodoItem, TodoItemDto>(deleted) :
                 NotFound("Todo item not found");

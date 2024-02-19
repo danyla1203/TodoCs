@@ -4,10 +4,10 @@ namespace todo.Data.Repositories;
 
 public interface IRepositoryBase<T> where T : class
 {
-    List<T> GetAll(
+    Task<List<T>> GetAll(
         Expression<Func<T, bool>>? filter = null
     );
-    T? GetById(int id);
-    T AddItem(T item);
-    T? Delete(int id);
+    Task<T?> GetById(int id);
+    Task<T> AddItem(T item);
+    Task<T?> Delete(int id);
 }

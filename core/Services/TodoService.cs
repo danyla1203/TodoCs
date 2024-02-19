@@ -12,31 +12,31 @@ public class TodoService : ITodoService
         _unit = unit;
     }
 
-    public List<TodoItem> GetTodoList(bool? completed = null)
+    public async Task<List<TodoItem>> GetTodoList(bool? completed = null)
     {
-        return _unit.TodoRepository.GetAll(
+        return await _unit.TodoRepository.GetAll(
             completed != null ?
             todo => todo.IsComplete == completed : null
         );
     }
 
-    public TodoItem? GetTodoItem(int id)
+    public Task<TodoItem?> GetTodoItem(int id)
     {
         return _unit.TodoRepository.GetById(id);
     }
-    public TodoItem AddTodoItem(TodoItem todoItem)
+    public async Task<TodoItem> AddTodoItem(TodoItem todoItem)
     {
-        _unit.TodoRepository.AddItem(todoItem);
-        _unit.Save();
+        await _unit.TodoRepository.AddItem(todoItem);
+        await _unit.Save();
         return todoItem;
     }
-    public TodoItem? DeleteTodoItem(int id)
+    public async Task<TodoItem?> DeleteTodoItem(int id)
     {
-        TodoItem? record = _unit.TodoRepository.GetById(id);
+        TodoItem? record = await _unit.TodoRepository.GetById(id);
         if (record != null)
         {
-            _unit.TodoRepository.Delete(id);
-            _unit.Save();
+            await _unit.TodoRepository.Delete(id);
+            await _unit.Save();
         }
         return record;
     }

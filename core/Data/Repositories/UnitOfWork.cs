@@ -19,8 +19,8 @@ public class UnitOfWork : IUnitOfWork
         }
          
     }
-    public void Save()
+    public async Task<int> Save()
     {
-        _context.SaveChanges();
+        return await _context.SaveChangesAsync();
     }
 }

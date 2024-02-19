@@ -2,6 +2,6 @@ using todo.Data.Repositories;
 
 public interface IUnitOfWork
 {
-  void Save();
+  Task<int> Save();
   ITodoRepository TodoRepository { get; }
 }
