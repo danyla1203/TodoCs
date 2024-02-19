@@ -1,11 +1,15 @@
 using Xunit;
 using Moq;
+using System;
 using todo.Services;
 using todo.Data.Repositories;
 using System.Collections.Generic;
 using todo.Models;
 using AutoFixture;
+using System.Linq.Expressions;
 using Todo.Tests.Utils.Mock;
+using todo.Data.Dto;
+using FluentAssertions;
 namespace Todo.Tests;
 
 public class TodoServiceUnitTest
@@ -13,14 +17,44 @@ public class TodoServiceUnitTest
     private Fixture fixture = new Fixture();
 
     [Fact]
-    public void GetTodoList_Unit()
+    public void GetTodoList_WithoutParams()
     {
-        var stub = new List<TodoItem>();
-        var mockUnit = new Mock<MockUnitOfWork>();
+        var stub = new TodoListDto { count = 0, items = new List<TodoItemDto>() };
+        var mockRepo = new Mock<ITodoRepository>();
+        mockRepo
+            .Setup(rep => rep.GetAll(It.IsAny<Expression<Func<TodoItem, bool>>>()))
+            .Returns(new List<TodoItem>());
+        var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
 
         var result = service.GetTodoList();
-        Assert.Equal(stub, result);
+        Assert.Equal(stub.count, result.count);
+        Assert.Equal(stub.items, result.items);
+    }
+
+    [Fact]
+    public void GetTodoList_OnCompletedTodo()
+    {
+        var dbStub = new List<TodoItem> {
+            fixture.Build<TodoItem>().With(t => t.IsComplete, true).Create(),
+        };
+        var mockRepo = new Mock<ITodoRepository>();
+        mockRepo
+            .Setup(rep => rep.GetAll(It.IsAny<Expression<Func<TodoItem, bool>>>()))
+            .Returns(dbStub);
+        var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
+        TodoService service = new TodoService(mockUnit.Object);
+
+        var result = service.GetTodoList(true);
+        var expected = new List<TodoItemDto> {
+            new TodoItemDto {
+                Id = dbStub[0].Id,
+                IsComplete = dbStub[0].IsComplete,
+                Name = dbStub[0].Name
+            }
+        };
+        Assert.Equal(1, result.count);
+        result.items.Should().BeEquivalentTo(expected);
     }
 
     [Fact]

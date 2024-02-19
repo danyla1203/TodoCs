@@ -1,10 +1,11 @@
+using todo.Data.Dto;
 using todo.Models;
 
 namespace todo.Services;
 
 public interface ITodoService
 {
-  IEnumerable<TodoItem> GetTodoList();
+  TodoListDto GetTodoList(bool? completed);
   TodoItem? GetTodoItem(int id);
   TodoItem AddTodoItem(TodoItem todoItem);
   TodoItem? DeleteTodoItem(int id);

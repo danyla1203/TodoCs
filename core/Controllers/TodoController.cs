@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using todo.Data.Dto;
 using todo.Models;
 using todo.Services;
 
@@ -18,7 +19,7 @@ public class TodoController : ControllerBase
 
     [HttpGet(Name = "GetTodoItems")]
     [Produces("application/json")]
-    public IEnumerable<TodoItem> GetTodoItems() => _service.GetTodoList();
+    public TodoListDto GetTodoItems(bool? completed) => _service.GetTodoList(completed);
 
     [HttpGet("{id}", Name = "GetTodoById")]
     [Produces("application/json")]

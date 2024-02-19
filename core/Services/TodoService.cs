@@ -1,4 +1,5 @@
-﻿using todo.Models;
+﻿using todo.Data.Dto;
+using todo.Models;
 
 namespace todo.Services;
 
@@ -10,15 +11,26 @@ public class TodoService : ITodoService
     {
         _unit = unit;
     }
-    
-    public IEnumerable<TodoItem> GetTodoList()
+
+    public TodoListDto GetTodoList(bool? completed = null)
     {
-        return _unit.TodoRepository.GetAll();
+        List<TodoItem> items = _unit.TodoRepository.GetAll(
+            completed != null ?
+            todo => todo.IsComplete == completed : null
+        );
+        var list = from i in items
+                   select new TodoItemDto
+                   {
+                       Id = i.Id,
+                       Name = i.Name,
+                       IsComplete = i.IsComplete
+                   };
+        return new TodoListDto { count = items.Count, items = list.ToList() };
     }
 
     public TodoItem? GetTodoItem(int id)
     {
-       return _unit.TodoRepository.GetById(id); 
+        return _unit.TodoRepository.GetById(id);
     }
     public TodoItem AddTodoItem(TodoItem todoItem)
     {
