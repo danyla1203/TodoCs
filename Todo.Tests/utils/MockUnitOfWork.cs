@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Moq;
 using todo.Data.Repositories;
 
@@ -23,6 +24,8 @@ public class MockUnitOfWork : IUnitOfWork
       return todoRepository;
     }
   }
-  public virtual void Save()
-  {}
+  public virtual Task<int> Save()
+  {
+    return Task.FromResult(0);
+  }
 }

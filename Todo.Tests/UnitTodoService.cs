@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Todo.Tests.Utils.Mock;
 using todo.Data.Dto;
 using FluentAssertions;
+using System.Threading.Tasks;
 namespace Todo.Tests;
 
 public class TodoServiceUnitTest
@@ -17,34 +18,35 @@ public class TodoServiceUnitTest
     private Fixture fixture = new Fixture();
 
     [Fact]
-    public void GetTodoList_WithoutParams()
+    public async Task GetTodoList_WithoutParams()
     {
+        // Arrange
         var stub = new List<TodoItem>();
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo
             .Setup(rep => rep.GetAll(It.IsAny<Expression<Func<TodoItem, bool>>>()))
-            .Returns(new List<TodoItem>());
+            .Returns(Task.FromResult(new List<TodoItem>()));
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
-
-        var result = service.GetTodoList();
-        Assert.Equal(stub, result);
+        //Act
+        var result = await service.GetTodoList();
+        //Assert
+        result.Should().BeEquivalentTo(stub);
     }
 
     [Fact]
-    public void GetTodoList_OnCompletedTodo()
+    public async Task GetTodoList_OnCompletedTodo()
     {
+        //Arrange
         var dbStub = new List<TodoItem> {
             fixture.Build<TodoItem>().With(t => t.IsComplete, true).Create(),
         };
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo
             .Setup(rep => rep.GetAll(It.IsAny<Expression<Func<TodoItem, bool>>>()))
-            .Returns(dbStub);
+            .Returns(Task.FromResult(dbStub));
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
-
-        var result = service.GetTodoList(true);
         var expected = new List<TodoItemDto> {
             new TodoItemDto {
                 Id = dbStub[0].Id,
@@ -52,61 +54,71 @@ public class TodoServiceUnitTest
                 Name = dbStub[0].Name
             }
         };
+        //Act
+        var result = await service.GetTodoList(true);
+        //Assert
         result.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
-    public void GetTodoItemById_Unit()
+    public async Task GetTodoItemById_Unit()
     {
+        //Arrange
         var stub = fixture.Create<TodoItem>();
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
-            .Returns(stub);
+            .Returns(Task.FromResult(stub));
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
-
         TodoService service = new TodoService(mockUnit.Object);
-
-        var result = service.GetTodoItem(fixture.Create<int>());
-        Assert.Equal(stub, result);
+        //Act
+        var result = await service.GetTodoItem(fixture.Create<int>());
+        //Assert
+        result.Should().BeEquivalentTo(stub);
     }
 
     [Fact]
-    public void AddTodoItem_Unit()
-    {
+    public async Task AddTodoItem_Unit()
+    {   
+        //Arrange
         var item = fixture.Create<TodoItem>();
         var mockRepo = new Mock<ITodoRepository>();
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
-
-        var result = service.AddTodoItem(item);
-        Assert.Equal(item, result);
+        //Act
+        var result = await service.AddTodoItem(item);
+        //Assert
+        result.Should().BeEquivalentTo(item);
         mockRepo.Verify(rep => rep.AddItem(item), Times.Once());
         mockUnit.Verify(unit => unit.Save(), Times.Once());
     }
 
     [Fact]
-    public void DeleteTodoItem_Unit()
+    public async Task DeleteTodoItem_Unit()
     {
+        //Arrange
         var item = fixture.Create<TodoItem>();
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
-            .Returns(item);
+            .Returns(Task.FromResult(item));
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
-
-        var result = service.DeleteTodoItem((int)item.Id);
-        Assert.Equal(item, result);
+        //Act
+        var result = await service.DeleteTodoItem((int)item.Id);
+        //Assert
+        result.Should().BeEquivalentTo(item);
         mockUnit.Verify(unit => unit.Save(), Times.Once());
         mockRepo.Verify(rep => rep.Delete((int)item.Id), Times.Once());
     }
     [Fact]
-    public void DeleteTodoItemNotFound_Unit()
+    public async Task DeleteTodoItemNotFound_Unit()
     {
+        //Arrange
         var mockRepo = new Mock<ITodoRepository>();
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
-
-        var result = service.DeleteTodoItem(-1);
+        //Act
+        var result = await service.DeleteTodoItem(-1);
+        //Assert
         Assert.Null(result);
         mockUnit.Verify(unit => unit.Save(), Times.Never());
         mockRepo.Verify(rep => rep.Delete(-1), Times.Never());
