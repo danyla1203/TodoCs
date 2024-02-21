@@ -69,7 +69,7 @@ public class TodoController : ControllerBase
         }
     }
 
-    [HttpDelete(Name = "DeleteTodoItem")]
+    [HttpDelete("{id}", Name = "DeleteTodoItem")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDto>> DeleteTodoItem(int id)
