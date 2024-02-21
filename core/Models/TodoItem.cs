@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 namespace todo.Models;
 
 public class TodoItem
@@ -7,6 +8,6 @@ public class TodoItem
 
     [Required]
     [StringLength(100)]
-    public string? Name { get; set; }
+    public string Name { get; set; }
     public bool IsComplete { get; set; }
 }
