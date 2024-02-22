@@ -11,6 +11,7 @@ using Todo.Tests.Utils.Mock;
 using todo.Data.Dto;
 using FluentAssertions;
 using System.Threading.Tasks;
+using todo.Exceptions.TodoExceptions;
 
 namespace Todo.Tests;
 
@@ -76,10 +77,20 @@ public class TodoServiceUnitTest
         //Assert
         result.Should().BeEquivalentTo(stub);
     }
+    [Fact]
+    public async Task GetTodoItemById_NotFound()
+    {
+        //Arrange
+        var mockRepo = new Mock<ITodoRepository>();
+        var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
+        TodoService service = new TodoService(mockUnit.Object);
+        //Act, Assert
+        await Assert.ThrowsAsync<TodoItemNotFound>(() => service.GetTodoItem(-1));
+    }
 
     [Fact]
     public async Task AddTodoItem_Unit()
-    {   
+    {
         //Arrange
         var item = fixture.Create<TodoItem>();
         var mockRepo = new Mock<ITodoRepository>();
@@ -117,11 +128,7 @@ public class TodoServiceUnitTest
         var mockRepo = new Mock<ITodoRepository>();
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
-        //Act
-        var result = await service.DeleteTodoItem(-1);
-        //Assert
-        Assert.Null(result);
-        mockUnit.Verify(unit => unit.Save(), Times.Never());
-        mockRepo.Verify(rep => rep.Delete(-1), Times.Never());
+        //Act, Assert
+        await Assert.ThrowsAsync<TodoItemNotFound>(() => service.DeleteTodoItem(-1));
     }
 }

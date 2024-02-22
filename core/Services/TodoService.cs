@@ -1,4 +1,5 @@
-﻿using todo.Models;
+﻿using todo.Exceptions.TodoExceptions;
+using todo.Models;
 
 namespace todo.Services;
 
@@ -19,9 +20,10 @@ public class TodoService : ITodoService
         );
     }
 
-    public Task<TodoItem?> GetTodoItem(int id)
+    public async Task<TodoItem?> GetTodoItem(int id)
     {
-        return _unit.TodoRepository.GetById(id);
+        TodoItem? item = await _unit.TodoRepository.GetById(id);
+        return item ?? throw new TodoItemNotFound(); 
     }
     public async Task<TodoItem> AddTodoItem(TodoItem todoItem)
     {
@@ -32,11 +34,10 @@ public class TodoService : ITodoService
     public async Task<TodoItem?> DeleteTodoItem(int id)
     {
         TodoItem? record = await _unit.TodoRepository.GetById(id);
-        if (record != null)
-        {
-            await _unit.TodoRepository.Delete(id);
-            await _unit.Save();
-        }
+        if (record == null) throw new TodoItemNotFound();
+
+        await _unit.TodoRepository.Delete(id);
+        await _unit.Save();
         return record;
-    }
+    } 
 }

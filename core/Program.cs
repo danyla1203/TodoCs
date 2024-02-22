@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using todo.Data;
 using todo.Data.Dto;
 using todo.Data.Repositories;
+using todo.Exceptions;
 using todo.Models;
 using todo.Services;
 
@@ -24,6 +25,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseMiddleware<CustomErrorHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -33,6 +36,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
 
 app.MapControllers();
 
