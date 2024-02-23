@@ -4,9 +4,12 @@ public class CustomErrorHandlingMiddleware
 {
   private readonly RequestDelegate _next;
 
-  public CustomErrorHandlingMiddleware(RequestDelegate next)
+  private readonly ILogger<CustomErrorHandlingMiddleware> _logger;
+
+  public CustomErrorHandlingMiddleware(RequestDelegate next, ILogger<CustomErrorHandlingMiddleware> logger)
   {
     _next = next;
+    _logger = logger;
   }
 
   public async Task Invoke(HttpContext context)
@@ -17,10 +20,12 @@ public class CustomErrorHandlingMiddleware
     }
     catch (BaseClientException ex)
     {
+      _logger.LogError(ex, "Client error");
       await HandleBaseClientExceptionAsync(context, ex);
     }
     catch (Exception ex)
     {
+      _logger.LogError(ex, "Unhandled error");
       await HandleNonClientExceptionAsync(context, ex);
     }
   }

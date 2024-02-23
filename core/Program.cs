@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using NLog.Web;
 using todo.Data;
 using todo.Data.Dto;
 using todo.Data.Repositories;
@@ -22,6 +23,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.ClearProviders();
+    loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+    loggingBuilder.AddNLog("nlog.config");
+});
 
 var app = builder.Build();
 
