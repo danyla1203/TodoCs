@@ -29,6 +29,7 @@ public class TodoController : ControllerBase
     [Produces("application/json")]
     public async Task<TodoListDto> GetTodoItems(bool? completed)
     {
+        _logger.LogInformation($"Get Todo list. Filtering: completed: {completed}");
         List<TodoItem> items = await _service.GetTodoList(completed);
         return new TodoListDto
         {
@@ -42,6 +43,7 @@ public class TodoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem(int id)
     {
+        _logger.LogInformation($"Get Todo by id. Id: {id}");
         TodoItem? record = await _service.GetTodoItem(id);
         return record != null ?
             _mapper.Map<TodoItem, TodoItemDto>(record) :
@@ -54,6 +56,7 @@ public class TodoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TodoItemDto>> AddTodoItem(TodoItem todoItem)
     {
+        _logger.LogInformation("Add Todo item. Data: {@todoItem}", todoItem);
         try
         {
             TodoItem newRecord = await _service.AddTodoItem(todoItem);
@@ -74,6 +77,7 @@ public class TodoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDto>> DeleteTodoItem(int id)
     {
+        _logger.LogInformation($"Delete Todo item. Id: {id}");
         try
         {
             TodoItem? deleted = await _service.DeleteTodoItem(id);
