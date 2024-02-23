@@ -57,19 +57,12 @@ public class TodoController : ControllerBase
     public async Task<ActionResult<TodoItemDto>> AddTodoItem(TodoItem todoItem)
     {
         _logger.LogInformation("Add Todo item. Data: {@todoItem}", todoItem);
-        try
-        {
-            TodoItem newRecord = await _service.AddTodoItem(todoItem);
-            return CreatedAtAction(
-                nameof(GetTodoItem),
-                new { id = newRecord.Id },
-                newRecord
-            );
-        }
-        catch (DbUpdateException)
-        {
-            return StatusCode(500);
-        }
+        TodoItem newRecord = await _service.AddTodoItem(todoItem);
+        return CreatedAtAction(
+            nameof(GetTodoItem),
+            new { id = newRecord.Id },
+            newRecord
+        );
     }
 
     [HttpDelete("{id}", Name = "DeleteTodoItem")]
@@ -78,17 +71,10 @@ public class TodoController : ControllerBase
     public async Task<ActionResult<TodoItemDto>> DeleteTodoItem(int id)
     {
         _logger.LogInformation($"Delete Todo item. Id: {id}");
-        try
-        {
-            TodoItem? deleted = await _service.DeleteTodoItem(id);
-            return deleted != null ?
-                _mapper.Map<TodoItem, TodoItemDto>(deleted) :
-                NotFound("Todo item not found");
-        }
-        catch (DbUpdateException)
-        {
-            return StatusCode(500);
-        }
+        TodoItem? deleted = await _service.DeleteTodoItem(id);
+        return deleted != null ?
+            _mapper.Map<TodoItem, TodoItemDto>(deleted) :
+            NotFound("Todo item not found");
     }
 }
 
