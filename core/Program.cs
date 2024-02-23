@@ -27,7 +27,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddLogging(loggingBuilder =>
 {
     loggingBuilder.ClearProviders();
-    loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+    loggingBuilder.SetMinimumLevel(LogLevel.Information);
     loggingBuilder.AddNLog("nlog.config");
 });
 
