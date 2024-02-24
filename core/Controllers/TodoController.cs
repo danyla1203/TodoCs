@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using todo.Data.Dto;
+using todo.Exceptions;
 using todo.Models;
 using todo.Services;
 
@@ -37,7 +38,7 @@ public class TodoController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
+    public async Task<ActionResult<TodoItem>> GetTodoItem([FromRoute] int id)
     {
         _logger.LogInformation($"Get Todo by id. Id: {id}");
         return await _service.GetTodoItem(id);
