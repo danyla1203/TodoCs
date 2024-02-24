@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using todo.Data;
 
 namespace todo.Tests;
@@ -41,6 +42,7 @@ public class WebAppFactory<TProgram>
                 var connection = container.GetRequiredService<DbConnection>();
                 options.UseSqlite(connection);
             });
+            services.AddLogging((logging) => logging.ClearProviders());
         });
     }
 }

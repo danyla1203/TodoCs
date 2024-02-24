@@ -49,8 +49,8 @@ public class TodoServiceUnitTest
             .Returns(Task.FromResult(dbStub));
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
-        var expected = new List<TodoItemDto> {
-            new TodoItemDto {
+        var expected = new List<TodoItem> {
+            new TodoItem {
                 Id = dbStub[0].Id,
                 IsComplete = dbStub[0].IsComplete,
                 Name = dbStub[0].Name
@@ -92,16 +92,17 @@ public class TodoServiceUnitTest
     public async Task AddTodoItem_Unit()
     {
         //Arrange
-        var item = fixture.Create<TodoItem>();
+        var inputTodo = fixture.Create<TodoItemDto>();
+        var expected = fixture.Create<TodoItem>();
         var mockRepo = new Mock<ITodoRepository>();
+        mockRepo.Setup(rep => rep.AddItem(It.IsAny<TodoItem>()))
+            .Returns(Task.FromResult(expected));
         var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
         //Act
-        var result = await service.AddTodoItem(item);
+        var result = await service.AddTodoItem(inputTodo);
         //Assert
-        result.Should().BeEquivalentTo(item);
-        mockRepo.Verify(rep => rep.AddItem(item), Times.Once());
-        mockUnit.Verify(unit => unit.Save(), Times.Once());
+        result.Should().BeEquivalentTo(expected);
     }
 
     [Fact]

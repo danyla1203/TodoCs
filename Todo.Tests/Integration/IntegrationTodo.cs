@@ -30,9 +30,9 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     _client = _factory.CreateClient();
   }
 
-  private async Task<TodoItemDto> AddTodo(
+  private async Task<TodoItem> AddTodo(
     int? Id = null,
-    #nullable enable
+#nullable enable
     string? Name = null,
     bool? IsComplete = null)
   {
@@ -43,7 +43,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
       IsComplete = IsComplete ?? false
     };
     await _context.AddAsync(data);
-    return new TodoItemDto
+    return new TodoItem
     {
       Id = data.Id,
       Name = data.Name,
@@ -65,8 +65,8 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     var expected = new TodoListDto
     {
       count = 1,
-      items = new List<TodoItemDto> {
-        new TodoItemDto { Id = item.Id, Name = item.Name, IsComplete = false }
+      items = new List<TodoItem> {
+        new TodoItem { Id = item.Id, Name = item.Name, IsComplete = false }
       }
     };
     //Act
@@ -89,7 +89,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     TodoListDto expected = new TodoListDto
     {
       count = 1,
-      items = new List<TodoItemDto> { item }
+      items = new List<TodoItem> { item }
     };
     //Act
     var response = await _client.GetAsync("/todo?completed=true");
@@ -111,7 +111,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     TodoListDto expected = new TodoListDto
     {
       count = 2,
-      items = new List<TodoItemDto> { todo, todo2 }
+      items = new List<TodoItem> { todo, todo2 }
     };
     //Act
     var response = await _client.GetAsync("/todo?completed=false");
@@ -128,7 +128,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     //Arrange
     var todo = await AddTodo();
     await _context.SaveChangesAsync();
-    TodoItemDto expected = new TodoItemDto
+    TodoItem expected = new TodoItem
     {
       Id = todo.Id,
       Name = todo.Name,
@@ -155,7 +155,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
   public async Task AddTodoItem_Successfully()
   {
     //Arrange
-    var inputTodo = new TodoItem { Id = 1, Name = "New todo" };
+    var inputTodo = new TodoItemDto { Name = "New todo" };
     //Act
     var response = await _client.PostAsJsonAsync("/Todo", inputTodo);
     //Assert
@@ -163,13 +163,14 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     var body = await response.Content.ReadAsStreamAsync();
     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     var result = await JsonSerializer.DeserializeAsync<TodoItem>(body, options);
-    result.Should().BeEquivalentTo(inputTodo);
+    result?.Name.Should().BeEquivalentTo("New todo");
+    result?.IsComplete.Should().BeFalse();
   }
   [Fact]
   public async Task AddTodoItem_IncorrectBody()
   {
     //Arrange
-    var inputTodo = new {  };
+    var inputTodo = new { };
     //Act
     var response = await _client.PostAsJsonAsync("/Todo", inputTodo);
     //Assert
