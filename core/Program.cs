@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NLog.Web;
 using todo.Data;
 using todo.Data.Repositories;
@@ -8,14 +9,12 @@ using todo.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITodoService, TodoService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("ApplicationContext")));
 
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -25,6 +24,16 @@ builder.Services.AddLogging(loggingBuilder =>
     loggingBuilder.SetMinimumLevel(LogLevel.Information);
     loggingBuilder.AddNLog("nlog.config");
 });
+
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context => 
+        {
+            var data = CustomBadRequest.FormatException(context.ModelState);
+            return new BadRequestObjectResult(data);
+        };
+    });
 
 var app = builder.Build();
 
@@ -42,7 +51,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 
 app.MapControllers();
 
