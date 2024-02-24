@@ -8,6 +8,6 @@ public class TodoItem
 
     [Required]
     [StringLength(100)]
-    public string Name { get; set; }
-    public bool IsComplete { get; set; }
+    public required string Name { get; set; }
+    public required bool IsComplete { get; set; }
 }

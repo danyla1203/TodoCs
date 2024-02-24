@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using todo.Data.Dto;
 using todo.Models;
 using todo.Services;
@@ -30,51 +29,39 @@ public class TodoController : ControllerBase
     public async Task<TodoListDto> GetTodoItems(bool? completed)
     {
         _logger.LogInformation($"Get Todo list. Filtering: completed: {completed}");
-        List<TodoItem> items = await _service.GetTodoList(completed);
+        List<TodoItem> list = await _service.GetTodoList(completed);
         return new TodoListDto
         {
-            count = items.Count,
-            items = _mapper.Map<List<TodoItem>, List<TodoItemDto>>(items)
+            count = list.Count,
+            items = list
         };
     }
 
     [HttpGet("{id}", Name = "GetTodoById")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem(int id)
+    public async Task<TodoItem> GetTodoItem(int id)
     {
         _logger.LogInformation($"Get Todo by id. Id: {id}");
-        TodoItem? record = await _service.GetTodoItem(id);
-        return record != null ?
-            _mapper.Map<TodoItem, TodoItemDto>(record) :
-            NotFound("Todo item not found");
+        return await _service.GetTodoItem(id);
     }
 
     [HttpPost(Name = "AddTodoItem")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TodoItemDto>> AddTodoItem(TodoItem todoItem)
+    public async Task<TodoItem> AddTodoItem(TodoItemDto todoItem)
     {
         _logger.LogInformation("Add Todo item. Data: {@todoItem}", todoItem);
-        TodoItem newRecord = await _service.AddTodoItem(todoItem);
-        return CreatedAtAction(
-            nameof(GetTodoItem),
-            new { id = newRecord.Id },
-            newRecord
-        );
+        return await _service.AddTodoItem(todoItem);
     }
 
     [HttpDelete("{id}", Name = "DeleteTodoItem")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<TodoItemDto>> DeleteTodoItem(int id)
+    public async Task<TodoItem> DeleteTodoItem(int id)
     {
         _logger.LogInformation($"Delete Todo item. Id: {id}");
-        TodoItem? deleted = await _service.DeleteTodoItem(id);
-        return deleted != null ?
-            _mapper.Map<TodoItem, TodoItemDto>(deleted) :
-            NotFound("Todo item not found");
+        return await _service.DeleteTodoItem(id);
     }
 }
 
