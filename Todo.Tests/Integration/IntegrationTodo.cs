@@ -21,6 +21,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
   private readonly WebAppFactory<Program> _factory;
   private readonly HttpClient _client;
   private readonly ApplicationDbContext _context;
+
   public TodoIntegration(WebAppFactory<Program> factory)
   {
     _factory = factory;
@@ -32,7 +33,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
 
   private async Task<TodoItem> AddTodo(
     int? Id = null,
-#nullable enable
+    #nullable enable
     string? Name = null,
     bool? IsComplete = null)
   {
@@ -77,6 +78,14 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     var result = await JsonSerializer.DeserializeAsync<TodoListDto>(body, options);
     result.Should().BeEquivalentTo(expected);
+  }
+  [Fact]
+  public async Task GetTodoList_WithIncorrectParams()
+  {
+    //Act
+    var response = await _client.GetAsync("/todo?completed=7");
+    //Assert
+    response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
   }
   [Fact]
   public async Task GetTodoList_WithFiltering_OnlyCompletedTodo()
@@ -152,6 +161,14 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
   }
   [Fact]
+  public async Task GetTodoItem_WithIncorrectId()
+  {
+    //Act
+    var response = await _client.GetAsync("/todo/null");
+    //Assert
+    response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+  }
+  [Fact]
   public async Task AddTodoItem_Successfully()
   {
     //Arrange
@@ -194,12 +211,18 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
   [Fact]
   public async Task DeleteTodoItem_404Exception()
   {
-    //Arrange
-    await _context.SaveChangesAsync();
     //Act
     var response = await _client.DeleteAsync("/Todo/666");
     //Assert
     response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+  }
+  [Fact]
+  public async Task DeleteTodoItem_WithIncorrectParam()
+  {
+    //Act
+    var response = await _client.DeleteAsync("/Todo/null");
+    //Assert
+    response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
   }
 
 }
