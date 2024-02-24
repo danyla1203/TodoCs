@@ -4,6 +4,7 @@ using todo.Data;
 using todo.Data.Repositories;
 using todo.Exceptions;
 using todo.Services;
+using todo.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddLogging(loggingBuilder =>
 });
 
 var app = builder.Build();
+
+app.UsePathBase("/api/v1");
+app.UseMiddleware<GlobalApiPrefixMiddleware>("/api/v1");
 
 app.UseMiddleware<CustomErrorHandlingMiddleware>();
 
