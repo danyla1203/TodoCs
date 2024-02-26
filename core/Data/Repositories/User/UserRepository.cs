@@ -6,10 +6,10 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 {
   public UserRepository(ApplicationDbContext context)
         : base(context)
-  {}
+    { }
 
-    public Task<User> FindUserByEmail(string email)
+    public async Task<User?> FindUserByEmail(string email)
     {
-        throw new NotImplementedException();
+        return await _table.FirstOrDefaultAsync(user => user.Email == email);
     }
 }

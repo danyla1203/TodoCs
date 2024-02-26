@@ -14,7 +14,7 @@ public class UserService : IUserService
     }
     public async Task<CreatedUserDto> CreateUser(AddUserDto user)
     {
-        User existingUser = await _unit.UserRepository.FindUserByEmail(user.Email);
+        User? existingUser = await _unit.UserRepository.FindUserByEmail(user.Email);
         if (existingUser != null) throw new UserAlreadyExist();
         var newRecord = await _unit.UserRepository.AddItem(UserMapping.ToEntity(user));
         return UserMapping.ToPublicData(newRecord);
