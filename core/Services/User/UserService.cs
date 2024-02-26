@@ -1,4 +1,7 @@
 using todo.Data.Dto;
+using todo.Data.Mappings;
+using todo.Exceptions;
+using todo.Models;
 
 namespace todo.Services;
 
@@ -11,11 +14,16 @@ public class UserService : IUserService
     }
     public async Task<CreatedUserDto> CreateUser(AddUserDto user)
     {
-       throw new NotImplementedException();
+        User existingUser = await _unit.UserRepository.FindUserByEmail(user.Email);
+        if (existingUser != null) throw new UserAlreadyExist();
+        var newRecord = await _unit.UserRepository.AddItem(UserMapping.ToEntity(user));
+        return UserMapping.ToPublicData(newRecord);
     }
 
     public async Task<CreatedUserDto> GetUser(int id)
     {
-        throw new NotImplementedException();
+        User? record = await _unit.UserRepository.GetById(id);
+        if (record == null) throw new UserNotFound();
+        return UserMapping.ToPublicData(record);
     }
 }
