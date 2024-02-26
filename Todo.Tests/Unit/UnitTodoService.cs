@@ -53,7 +53,9 @@ public class TodoServiceUnitTest
             new TodoItem {
                 Id = dbStub[0].Id,
                 IsComplete = dbStub[0].IsComplete,
-                Name = dbStub[0].Name
+                Name = dbStub[0].Name,
+                UserId = dbStub[0].UserId,
+                performer = dbStub[0].performer
             }
         };
         //Act
@@ -127,7 +129,7 @@ public class TodoServiceUnitTest
     {
         //Arrange
         var mockRepo = new Mock<ITodoRepository>();
-        var mockUnit = new Mock<MockUnitOfWork>(mockRepo.Object);
+        var mockUnit = new Mock<MockUnitOfWork>();
         TodoService service = new TodoService(mockUnit.Object);
         //Act, Assert
         await Assert.ThrowsAsync<TodoItemNotFound>(() => service.DeleteTodoItem(-1));
