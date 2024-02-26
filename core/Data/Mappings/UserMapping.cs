@@ -19,6 +19,7 @@ public class UserMapping
     {
         return new CreatedUserDto
         {
+            Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,

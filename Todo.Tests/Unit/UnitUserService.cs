@@ -30,6 +30,7 @@ public class UnitUserService
         };
         var result = new CreatedUserDto
         {
+            Id = stub.Id,
             FirstName = stub.FirstName,
             LastName = stub.LastName,
             Email = stub.Email
@@ -71,6 +72,7 @@ public class UnitUserService
         var createdUser = fixture.Create<User>();
         var expected = new CreatedUserDto
         {
+            Id = createdUser.Id,
             FirstName = createdUser.FirstName,
             LastName = createdUser.LastName,
             Email = createdUser.Email
