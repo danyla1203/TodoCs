@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace todo.Models;
@@ -22,6 +23,7 @@ public class User
     [StringLength(30, MinimumLength = 6)]
     public required string Password { get; set; }
 
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public string DisplayName { get; private set; }
 
     public ICollection<TodoItem> tasks { get; } = new List<TodoItem>();

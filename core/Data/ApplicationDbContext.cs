@@ -13,7 +13,7 @@ public class ApplicationDbContext : DbContext
     {
         modelBuilder.Entity<User>()
             .Property(p => p.DisplayName)
-            .HasComputedColumnSql("[LastName] + ' ' + [FirstName]");
+            .HasComputedColumnSql("\"LastName\" || ' ' || \"FirstName\"", stored: true);
     }
 
     public DbSet<TodoItem> TodoItems { get; set; }

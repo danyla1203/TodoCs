@@ -17,6 +17,7 @@ public class UserService : IUserService
         User? existingUser = await _unit.UserRepository.FindUserByEmail(user.Email);
         if (existingUser != null) throw new UserAlreadyExist();
         var newRecord = await _unit.UserRepository.AddItem(UserMapping.ToEntity(user));
+        await _unit.Save();
         return UserMapping.ToPublicData(newRecord);
     }
 
