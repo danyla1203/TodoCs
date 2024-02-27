@@ -14,7 +14,7 @@ public class BaseRepository<TEntity> : IRepositoryBase<TEntity>
         _context = context;
     }
 
-    public async Task<TEntity?> GetById(int id)
+    public virtual async Task<TEntity?> GetById(int id)
     {
         return await _table.FindAsync((long)id);
     }
