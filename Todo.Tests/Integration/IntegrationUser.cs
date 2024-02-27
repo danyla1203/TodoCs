@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -54,12 +55,13 @@ public class UserIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
             Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Email = user.Email
+            Email = user.Email,
+            Tasks = user.Tasks
         };
-        return new InputOutputUser 
-        { 
-            Input = addUserDto, 
-            Created = createdUserDto 
+        return new InputOutputUser
+        {
+            Input = addUserDto,
+            Created = createdUserDto
         };
     }
 
@@ -83,7 +85,13 @@ public class UserIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     public async Task AddUser_ConflictError()
     {
         //Arrange
-        var userInDb = fixture.Create<User>();
+        var userInDb = new User
+        {
+            FirstName = fixture.Create<string>(),
+            LastName = fixture.Create<string>(),
+            Email = fixture.Create<string>(),
+            Password = fixture.Create<string>(),
+        };
         var input = (await CreateUser(userInDb)).Input;
         await _context.SaveChangesAsync();
         //Act
@@ -96,7 +104,9 @@ public class UserIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     public async Task GetUser_Successfully()
     {
         //Arrange
-        var userInDb = fixture.Create<User>();
+        var userInDb = fixture.Build<User>()
+            .With(user => user.Tasks, new List<TodoItem>())
+            .Create();
         var created = (await CreateUser(userInDb)).Created;
         await _context.SaveChangesAsync();
         //Act

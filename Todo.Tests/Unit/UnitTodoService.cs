@@ -41,7 +41,11 @@ public class TodoServiceUnitTest
     {
         //Arrange
         var dbStub = new List<TodoItem> {
-            fixture.Build<TodoItem>().With(t => t.IsComplete, true).Create(),
+            new TodoItem 
+            {
+                Name = fixture.Create<string>(),
+                IsComplete = true,
+            }
         };
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo
@@ -68,7 +72,11 @@ public class TodoServiceUnitTest
     public async Task GetTodoItemById_Unit()
     {
         //Arrange
-        var stub = fixture.Create<TodoItem>();
+        var stub = new TodoItem
+        {
+            Name = fixture.Create<string>(),
+            IsComplete = fixture.Create<bool>(),
+        };
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
             .Returns(Task.FromResult(stub));
@@ -95,7 +103,11 @@ public class TodoServiceUnitTest
     {
         //Arrange
         var inputTodo = fixture.Create<TodoItemDto>();
-        var expected = fixture.Create<TodoItem>();
+        var expected = new TodoItem
+        {
+            Name = fixture.Create<string>(),
+            IsComplete = fixture.Create<bool>(),
+        };
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo.Setup(rep => rep.AddItem(It.IsAny<TodoItem>()))
             .Returns(Task.FromResult(expected));
@@ -111,7 +123,11 @@ public class TodoServiceUnitTest
     public async Task DeleteTodoItem_Unit()
     {
         //Arrange
-        var item = fixture.Create<TodoItem>();
+        var item = new TodoItem
+        {
+            Name = fixture.Create<string>(),
+            IsComplete = fixture.Create<bool>(),
+        };
         var mockRepo = new Mock<ITodoRepository>();
         mockRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
             .Returns(Task.FromResult(item));

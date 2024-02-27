@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -20,7 +21,13 @@ public class UnitUserService
     public async Task CreateUser_WithCorrectParams()
     {
         //Arrange
-        var stub = fixture.Create<User>();
+        var stub = new User
+        {
+            FirstName = fixture.Create<string>(),
+            LastName = fixture.Create<string>(),
+            Email = fixture.Create<string>(),
+            Password = fixture.Create<string>(),
+        };
         var userDto = new AddUserDto
         {
             FirstName = stub.FirstName,
@@ -33,7 +40,8 @@ public class UnitUserService
             Id = stub.Id,
             FirstName = stub.FirstName,
             LastName = stub.LastName,
-            Email = stub.Email
+            Email = stub.Email,
+            Tasks = new List<TodoItem>()
         };
         var mockRepo = new Mock<IUserRepository>();
         mockRepo.Setup(rep => rep.AddItem(It.IsAny<User>()))
@@ -49,7 +57,13 @@ public class UnitUserService
     public async Task CreateUser_ConflictError()
     {
         //Arrange
-        var createdUser = fixture.Create<User>();
+        var createdUser = new User
+        {
+            FirstName = fixture.Create<string>(),
+            LastName = fixture.Create<string>(),
+            Email = fixture.Create<string>(),
+            Password = fixture.Create<string>(),
+        };
         var input = new AddUserDto
         {
             FirstName = fixture.Create<string>(),
@@ -69,13 +83,20 @@ public class UnitUserService
     public async Task GetUser_Successfully()
     {
         //Arrange
-        var createdUser = fixture.Create<User>();
+        var createdUser = new User
+        {
+            FirstName = fixture.Create<string>(),
+            LastName = fixture.Create<string>(),
+            Email = fixture.Create<string>(),
+            Password = fixture.Create<string>(),
+        };
         var expected = new CreatedUserDto
         {
             Id = createdUser.Id,
             FirstName = createdUser.FirstName,
             LastName = createdUser.LastName,
-            Email = createdUser.Email
+            Email = createdUser.Email,
+            Tasks = new List<TodoItem>()
         };
         var mockRepo = new Mock<IUserRepository>();
         mockRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
