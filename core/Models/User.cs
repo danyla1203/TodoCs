@@ -26,5 +26,5 @@ public class User
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public string DisplayName { get; private set; }
 
-    public ICollection<TodoItem> tasks { get; } = new List<TodoItem>();
+    public ICollection<TodoItem> Tasks { get; } = new List<TodoItem>();
 }
