@@ -6,10 +6,12 @@ public class BaseRepository<TEntity> : IRepositoryBase<TEntity>
     where TEntity : class
 {
     protected DbSet<TEntity> _table;
+    protected ApplicationDbContext _context;
 
-    public BaseRepository(DbSet<TEntity> table)
+    public BaseRepository(ApplicationDbContext context)
     {
-        _table = table;
+        _table = context.Set<TEntity>();
+        _context = context;
     }
 
     public async Task<TEntity?> GetById(int id)

@@ -8,7 +8,7 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
-        _todoRepository = new TodoRepository(context.TodoItems);
+        _todoRepository = new TodoRepository(context);
     }
 
     public ITodoRepository TodoRepository
