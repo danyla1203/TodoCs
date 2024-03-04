@@ -10,25 +10,25 @@ public class TodoRepository : BaseRepository<TodoItem>, ITodoRepository
         : base(context)
     { }
 
-    public Task<List<TodoItemDto>> GetTodoItemsList(bool? completedStatus)
+    public async Task<List<TodoItemDto>> GetTodoItemsList(bool? completedStatus)
     {
-        var query = _table.Include(task => task.performer);
-        if (completedStatus != null) 
+        IQueryable<TodoItem> query = _table.Include(task => task.Performer);
+        if (completedStatus != null)
         {
-            query.Where(task => task.IsComplete == completedStatus);
+            query = query.Where(todo => todo.IsCompleted == completedStatus);
         }
-        return query.Select(task => new TodoItemDto
+        return await query.Select(task => new TodoItemDto
         {
             Id = (int)task.Id,
             Name = task.Name,
-            IsCompleted = task.IsComplete,
-            Performer = task.performer != null ? new TaskPerformer
+            IsCompleted = task.IsCompleted,
+            Performer = task.Performer != null ? new TaskPerformer
             {
-                Id = task.performer.Id,
-                LastName = task.performer.LastName,
-                FirstName = task.performer.FirstName,
-                Email = task.performer.Email,
-                DisplayName = task.performer.DisplayName
+                Id = task.Performer.Id,
+                LastName = task.Performer.LastName,
+                FirstName = task.Performer.FirstName,
+                Email = task.Performer.Email,
+                DisplayName = task.Performer.DisplayName
             } : null
         }).ToListAsync();
     }
@@ -36,20 +36,20 @@ public class TodoRepository : BaseRepository<TodoItem>, ITodoRepository
     public Task<TodoItemDto?> GetTodoItem(int id)
     {
         return _table
-            .Include(task => task.performer)
+            .Include(task => task.Performer)
             .Where(task => task.Id == id)
             .Select(task => new TodoItemDto
             {
                 Id = (int)task.Id,
                 Name = task.Name,
-                IsCompleted = task.IsComplete,
-                Performer = task.performer != null ? new TaskPerformer
+                IsCompleted = task.IsCompleted,
+                Performer = task.Performer != null ? new TaskPerformer
                 {
-                    Id = task.performer.Id,
-                    LastName = task.performer.LastName,
-                    DisplayName = task.performer.DisplayName,
-                    FirstName = task.performer.FirstName,
-                    Email = task.performer.Email
+                    Id = task.Performer.Id,
+                    LastName = task.Performer.LastName,
+                    DisplayName = task.Performer.DisplayName,
+                    FirstName = task.Performer.FirstName,
+                    Email = task.Performer.Email
                 } : null
             })
             .FirstOrDefaultAsync();

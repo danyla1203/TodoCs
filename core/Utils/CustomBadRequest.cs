@@ -4,8 +4,8 @@ namespace todo.Utils;
 
 public class ErrorItem
 {
-    public string Field { get; set; }
-    public string Message { get; set; }
+    public required string Field { get; set; }
+    public required string Message { get; set; }
 }
 
 public class CustomBadRequest

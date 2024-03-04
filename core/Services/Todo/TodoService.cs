@@ -28,7 +28,7 @@ public class TodoService : ITodoService
         var item = new TodoItem
         {
             Name = todoItem.Name,
-            IsComplete = todoItem.IsComplete ?? false
+            IsCompleted = todoItem.IsComplete ?? false
         };
         var newRecord = await _unit.TodoRepository.AddItem(item);
         await _unit.Save();

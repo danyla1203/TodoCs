@@ -50,13 +50,24 @@ public class UserIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
             Email = user.Email,
             Password = user.Password
         };
+        var tasks = new List<ShortTodoItemDto>();
+        foreach (var task in user.Tasks)
+        {
+            tasks.Add(new ShortTodoItemDto
+            {
+                Id = (int)task.Id,
+                Name = task.Name,
+                IsCompleted = task.IsCompleted
+            });
+        }
         var createdUserDto = new CreatedUserDto
         {
             Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            DisplayName = user.LastName + " " + user.FirstName,
             Email = user.Email,
-            Tasks = user.Tasks
+            Tasks = tasks
         };
         return new InputOutputUser
         {

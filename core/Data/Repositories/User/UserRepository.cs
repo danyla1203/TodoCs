@@ -31,7 +31,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                 {
                     Id = (int)task.Id,
                     Name = task.Name,
-                    IsCompleted = task.IsComplete
+                    IsCompleted = task.IsCompleted
                 }).ToList()
             })
             .FirstOrDefaultAsync();

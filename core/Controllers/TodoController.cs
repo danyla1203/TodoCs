@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using todo.Data.Dto;
-using todo.Exceptions;
 using todo.Models;
 using todo.Services;
 

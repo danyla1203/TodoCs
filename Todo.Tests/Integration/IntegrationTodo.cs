@@ -31,24 +31,24 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     _client = _factory.CreateClient();
   }
 
-  private async Task<TodoItem> AddTodo(
+  private async Task<TodoItemDto> AddTodo(
     int? Id = null,
     #nullable enable
     string? Name = null,
-    bool? IsComplete = null)
+    bool? IsCompleted = null)
   {
     var data = new TodoItem
     {
       Id = Id ?? fixture.Create<long>(),
       Name = Name ?? fixture.Create<string>(),
-      IsComplete = IsComplete ?? false
+      IsCompleted = IsCompleted ?? false
     };
     await _context.AddAsync(data);
-    return new TodoItem
+    return new TodoItemDto
     {
-      Id = data.Id,
+      Id = (int)data.Id,
       Name = data.Name,
-      IsComplete = data.IsComplete
+      IsCompleted = data.IsCompleted
     };
   }
 
@@ -66,8 +66,8 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     var expected = new TodoListDto
     {
       count = 1,
-      items = new List<TodoItem> {
-        new TodoItem { Id = item.Id, Name = item.Name, IsComplete = false }
+      items = new List<TodoItemDto> {
+        new TodoItemDto { Id = (int)item.Id, Name = item.Name, IsCompleted = false }
       }
     };
     //Act
@@ -93,12 +93,17 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     //Arrange
     await AddTodo();
     await AddTodo();
-    var item = await AddTodo(IsComplete: true);
+    var item = await AddTodo(IsCompleted: true);
     await _context.SaveChangesAsync();
     TodoListDto expected = new TodoListDto
     {
       count = 1,
-      items = new List<TodoItem> { item }
+      items = new List<TodoItemDto> { new TodoItemDto { 
+        Id = item.Id, 
+        IsCompleted = item.IsCompleted, 
+        Name = item.Name 
+      }
+      }
     };
     //Act
     var response = await _client.GetAsync("/todo?completed=true");
@@ -115,12 +120,12 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     //Arrange
     var todo = await AddTodo();
     var todo2 = await AddTodo();
-    await AddTodo(IsComplete: true);
+    await AddTodo(IsCompleted: true);
     await _context.SaveChangesAsync();
     TodoListDto expected = new TodoListDto
     {
       count = 2,
-      items = new List<TodoItem> { todo, todo2 }
+      items = new List<TodoItemDto> { todo, todo2 }
     };
     //Act
     var response = await _client.GetAsync("/todo?completed=false");
@@ -141,7 +146,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     {
       Id = todo.Id,
       Name = todo.Name,
-      IsComplete = todo.IsComplete
+      IsCompleted = todo.IsCompleted
     };
     //Act
     var response = await _client.GetAsync($"/todo/{todo.Id}");
@@ -181,7 +186,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     var result = await JsonSerializer.DeserializeAsync<TodoItem>(body, options);
     result?.Name.Should().BeEquivalentTo("New todo");
-    result?.IsComplete.Should().BeFalse();
+    result?.IsCompleted.Should().BeFalse();
   }
   [Fact]
   public async Task AddTodoItem_IncorrectBody()

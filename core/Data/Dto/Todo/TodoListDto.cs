@@ -1,5 +1,3 @@
-using todo.Models;
-
 namespace todo.Data.Dto;
 
 public class TodoListDto

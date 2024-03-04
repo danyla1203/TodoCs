@@ -23,7 +23,7 @@ public class UserMapping
             tasks.Add(new ShortTodoItemDto {
                 Id = (int)task.Id,
                 Name = task.Name,
-                IsCompleted = task.IsComplete
+                IsCompleted = task.IsCompleted
             });
         }
 
