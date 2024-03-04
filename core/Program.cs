@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NLog.Web;
 using todo.Data;
@@ -27,9 +29,13 @@ builder.Services.AddLogging(loggingBuilder =>
 });
 
 builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
-        options.InvalidModelStateResponseFactory = context => 
+        options.InvalidModelStateResponseFactory = context =>
         {
             var data = CustomBadRequest.FormatException(context.ModelState);
             return new BadRequestObjectResult(data);

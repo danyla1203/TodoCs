@@ -24,7 +24,7 @@ public class User
     public required string Password { get; set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public string DisplayName { get; private set; }
+    public string DisplayName { get; private set; } = "";
 
     public ICollection<TodoItem> Tasks { get; set; } = new List<TodoItem>();
 }

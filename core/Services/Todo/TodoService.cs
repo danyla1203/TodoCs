@@ -1,4 +1,5 @@
 ﻿using todo.Data.Dto;
+using todo.Exceptions;
 using todo.Exceptions.TodoExceptions;
 using todo.Models;
 
@@ -13,19 +14,16 @@ public class TodoService : ITodoService
         _unit = unit;
     }
 
-    public async Task<List<TodoItem>> GetTodoList(bool? completed = null)
+    public async Task<List<TodoItemDto>> GetTodoList(bool? completed = null)
     {
-        return await _unit.TodoRepository.GetAll(
-            completed != null ?
-            todo => todo.IsComplete == completed : null
-        );
+        return await _unit.TodoRepository.GetTodoItemsList(completed);
     }
-    public async Task<TodoItem> GetTodoItem(int id)
+    public async Task<TodoItemDto> GetTodoItem(int id)
     {
-        TodoItem? item = await _unit.TodoRepository.GetById(id);
+        TodoItemDto? item = await _unit.TodoRepository.GetTodoItem(id);
         return item ?? throw new TodoItemNotFound();
     }
-    public async Task<TodoItem> AddTodoItem(TodoItemDto todoItem)
+    public async Task<TodoItem> AddTodoItem(AddTodoItemDto todoItem)
     {
         var item = new TodoItem
         {
@@ -36,13 +34,23 @@ public class TodoService : ITodoService
         await _unit.Save();
         return newRecord;
     }
-    public async Task<TodoItem> DeleteTodoItem(int id)
+    public async Task<TodoItemDto> DeleteTodoItem(int id)
     {
-        TodoItem? record = await _unit.TodoRepository.GetById(id);
+        TodoItemDto? record = await _unit.TodoRepository.GetTodoItem(id);
         if (record == null) throw new TodoItemNotFound();
 
         await _unit.TodoRepository.Delete(id);
         await _unit.Save();
         return record;
+    }
+    public async Task AssignTaskToUser(int taskId, int userId)
+    {
+        TodoItem? task = await _unit.TodoRepository.GetById(taskId);
+        if (task == null) throw new TodoItemNotFound();
+        User? user = await _unit.UserRepository.GetById(userId);
+        if (user == null) throw new UserNotFound();
+
+        user.Tasks.Add(task);
+        await _unit.Save();
     }
 }

@@ -5,8 +5,9 @@ namespace todo.Services;
 
 public interface ITodoService
 {
-    Task<List<TodoItem>> GetTodoList(bool? completed);
-    Task<TodoItem> GetTodoItem(int id);
-    Task<TodoItem> AddTodoItem(TodoItemDto todoItem);
-    Task<TodoItem> DeleteTodoItem(int id);
+    Task<List<TodoItemDto>> GetTodoList(bool? completed);
+    Task<TodoItemDto> GetTodoItem(int id);
+    Task<TodoItem> AddTodoItem(AddTodoItemDto todoItem);
+    Task<TodoItemDto> DeleteTodoItem(int id);
+    Task AssignTaskToUser(int taskId, int userId);
 }

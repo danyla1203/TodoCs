@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using todo.Data.Dto;
 using todo.Models;
 
 namespace todo.Data.Repositories;
@@ -14,10 +15,25 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return await _table.FirstOrDefaultAsync(user => user.Email == email);
     }
 
-    public override async Task<User?> GetById(int id)
+    public Task<CreatedUserDto?> GetProfile(int id)
     {
-        return await _table
+        return _table
             .Include(user => user.Tasks)
-            .SingleOrDefaultAsync(user => user.Id == id);
+            .Where(user => user.Id == id)
+            .Select(user => new CreatedUserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Tasks = user.Tasks.Select(task => new ShortTodoItemDto
+                {
+                    Id = (int)task.Id,
+                    Name = task.Name,
+                    IsCompleted = task.IsComplete
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
     }
 }

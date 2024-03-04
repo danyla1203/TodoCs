@@ -16,6 +16,11 @@ public class MockUnitOfWork : IUnitOfWork
     {
       userRepository = mock;
     }
+    public MockUnitOfWork(ITodoRepository todo, IUserRepository user)
+    {
+        userRepository = user;
+        todoRepository = todo;
+    }
     public MockUnitOfWork()
     {}
     public ITodoRepository TodoRepository

@@ -23,8 +23,8 @@ public class UserService : IUserService
 
     public async Task<CreatedUserDto> GetUser(int id)
     {
-        User? record = await _unit.UserRepository.GetById(id);
+        CreatedUserDto? record = await _unit.UserRepository.GetProfile(id);
         if (record == null) throw new UserNotFound();
-        return UserMapping.ToPublicData(record);
+        return record;
     }
 }

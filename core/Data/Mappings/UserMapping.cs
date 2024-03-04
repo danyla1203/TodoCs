@@ -17,13 +17,24 @@ public class UserMapping
     }
     public static CreatedUserDto ToPublicData(User user)
     {
+        var tasks = new List<ShortTodoItemDto>();
+        foreach (var task in user.Tasks)
+        {
+            tasks.Add(new ShortTodoItemDto {
+                Id = (int)task.Id,
+                Name = task.Name,
+                IsCompleted = task.IsComplete
+            });
+        }
+
         return new CreatedUserDto
         {
             Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            DisplayName = user.DisplayName,
             Email = user.Email,
-            Tasks = user.Tasks
+            Tasks = tasks
         };
     }
 }
