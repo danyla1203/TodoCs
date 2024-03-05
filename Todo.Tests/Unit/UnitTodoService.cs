@@ -185,7 +185,7 @@ public class TodoServiceUnitTest
             } }
         };
         var mockUserRepo = new Mock<IUserRepository>();
-        mockUserRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
+        mockUserRepo.Setup(rep => rep.GetById(It.IsAny<int>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(createdUser));
         var mockTodoRepo = new Mock<ITodoRepository>();
         mockTodoRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
@@ -212,18 +212,48 @@ public class TodoServiceUnitTest
         //Arrange
         var mockUserInDb = new User
         {
-            Id = (long)1,
+            Id = 1,
             FirstName = fixture.Create<string>(),
             LastName = fixture.Create<string>(),
             Email = fixture.Create<string>(),
             Password = fixture.Create<string>(),
         };
         var mockUserRepo = new Mock<IUserRepository>();
-        mockUserRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
+        mockUserRepo.Setup(rep => rep.GetById(It.IsAny<int>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(mockUserInDb));
         var mockUnit = new Mock<MockUnitOfWork>(mockUserRepo.Object);
         TodoService service = new TodoService(mockUnit.Object);
         //Act
         await Assert.ThrowsAsync<TodoItemNotFound>(() => service.AssignTaskToUser(-1, 1));
+    }
+    [Fact]
+    public async Task AssingTaskToUser_UserAlreadyAssigned()
+    {
+        //Arrange
+        var createdTodo = new TodoItem
+        {
+            Id = 1,
+            Name = "Test todo",
+            IsCompleted = false,
+        };
+        var mockUserInDb = new User
+        {
+            Id = 1,
+            FirstName = fixture.Create<string>(),
+            LastName = fixture.Create<string>(),
+            Email = fixture.Create<string>(),
+            Password = fixture.Create<string>(),
+            Tasks = new List<TodoItem> { createdTodo }
+        };
+        var mockUserRepo = new Mock<IUserRepository>();
+        mockUserRepo.Setup(rep => rep.GetById(It.IsAny<int>(), It.IsAny<bool>()))
+            .Returns(Task.FromResult(mockUserInDb));
+        var mockTodoRepo = new Mock<ITodoRepository>();
+        mockTodoRepo.Setup(rep => rep.GetById(It.IsAny<int>()))
+            .Returns(Task.FromResult(createdTodo));
+        var mockUnit = new Mock<MockUnitOfWork>(mockTodoRepo.Object, mockUserRepo.Object);
+        TodoService service = new TodoService(mockUnit.Object);
+        //Act, Assert
+        await Assert.ThrowsAsync<TodoAlreadyHavePerformer>(() => service.AssignTaskToUser(-1, 1));
     }
 }

@@ -45,12 +45,17 @@ public class TodoService : ITodoService
     }
     public async Task AssignTaskToUser(int taskId, int userId)
     {
-        TodoItem? task = await _unit.TodoRepository.GetById(taskId);
-        if (task == null) throw new TodoItemNotFound();
-        User? user = await _unit.UserRepository.GetById(userId);
+        TodoItem? todo = await _unit.TodoRepository.GetById(taskId);
+        if (todo == null) throw new TodoItemNotFound();
+        User? user = await _unit.UserRepository.GetById(userId, true);
         if (user == null) throw new UserNotFound();
+        
+        TodoItem? existingTask = user.Tasks.Where(task => task.Id == todo.Id).FirstOrDefault();
+        if (existingTask != null) {
+            throw new TodoAlreadyHavePerformer();
+        }
 
-        user.Tasks.Add(task);
+        user.Tasks.Add(todo);
         await _unit.Save();
     }
 }

@@ -31,9 +31,27 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     _client = _factory.CreateClient();
   }
 
-  private async Task<TodoItemDto> AddTodo(
+  private async Task<User> AddUser()
+  {
+    var user = new User
+    {
+      FirstName = fixture.Create<string>(),
+      LastName = fixture.Create<string>(),
+      Email = fixture.Create<string>(),
+      Password = fixture.Create<string>(),
+    };
+    await _context.Users.AddAsync(user);
+    return user;
+  }
+
+  public class ItemAndDto
+  {
+    public TodoItemDto Dto;
+    public TodoItem Model;
+  }
+  private async Task<ItemAndDto> AddTodo(
     int? Id = null,
-    #nullable enable
+#nullable enable
     string? Name = null,
     bool? IsCompleted = null)
   {
@@ -44,11 +62,15 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
       IsCompleted = IsCompleted ?? false
     };
     await _context.AddAsync(data);
-    return new TodoItemDto
+    return new ItemAndDto
     {
-      Id = (int)data.Id,
-      Name = data.Name,
-      IsCompleted = data.IsCompleted
+      Dto = new TodoItemDto
+      {
+        Id = (int)data.Id,
+        Name = data.Name,
+        IsCompleted = data.IsCompleted
+      },
+      Model = data
     };
   }
 
@@ -61,14 +83,12 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
   public async Task GetTodoList_WithoutParams()
   {
     //Arrange
-    var item = await AddTodo(Name: "TestTodo");
+    var item = (await AddTodo(Name: "TestTodo")).Dto;
     await _context.SaveChangesAsync();
     var expected = new TodoListDto
     {
       count = 1,
-      items = new List<TodoItemDto> {
-        new TodoItemDto { Id = (int)item.Id, Name = item.Name, IsCompleted = false }
-      }
+      items = new List<TodoItemDto> { item }
     };
     //Act
     var response = await _client.GetAsync("/todo");
@@ -93,17 +113,12 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     //Arrange
     await AddTodo();
     await AddTodo();
-    var item = await AddTodo(IsCompleted: true);
+    var item = (await AddTodo(IsCompleted: true)).Dto;
     await _context.SaveChangesAsync();
     TodoListDto expected = new TodoListDto
     {
       count = 1,
-      items = new List<TodoItemDto> { new TodoItemDto { 
-        Id = item.Id, 
-        IsCompleted = item.IsCompleted, 
-        Name = item.Name 
-      }
-      }
+      items = new List<TodoItemDto> { item }
     };
     //Act
     var response = await _client.GetAsync("/todo?completed=true");
@@ -118,8 +133,8 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
   public async Task GetTodoList_WithFiltering_OnlyIncompletedTodo()
   {
     //Arrange
-    var todo = await AddTodo();
-    var todo2 = await AddTodo();
+    var todo = (await AddTodo()).Dto;
+    var todo2 = (await AddTodo()).Dto;
     await AddTodo(IsCompleted: true);
     await _context.SaveChangesAsync();
     TodoListDto expected = new TodoListDto
@@ -140,14 +155,9 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
   public async Task GetTodoItem_Successfully()
   {
     //Arrange
-    var todo = await AddTodo();
+    var todo = (await AddTodo()).Model;
     await _context.SaveChangesAsync();
-    TodoItem expected = new TodoItem
-    {
-      Id = todo.Id,
-      Name = todo.Name,
-      IsCompleted = todo.IsCompleted
-    };
+    TodoItem expected = todo;
     //Act
     var response = await _client.GetAsync($"/todo/{todo.Id}");
     //Assert
@@ -202,7 +212,7 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
   public async Task DeleteTodoItem_Successfully()
   {
     //Arrange
-    var todoInDb = await AddTodo();
+    var todoInDb = (await AddTodo()).Model;
     await _context.SaveChangesAsync();
     //Act
     var response = await _client.DeleteAsync($"/Todo/{todoInDb.Id}");
@@ -229,5 +239,69 @@ public class TodoIntegration : IClassFixture<WebAppFactory<Program>>, IDisposabl
     //Assert
     response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
   }
-
+  [Fact]
+  public async Task AssignTaskToUser_Successfully()
+  {
+    //Arrange
+    var todoInDb = (await AddTodo()).Dto;
+    var user = await AddUser();
+    TodoItemDto expected = new TodoItemDto
+    {
+      Id = todoInDb.Id,
+      Name = todoInDb.Name,
+      IsCompleted = todoInDb.IsCompleted,
+      Performer = new TaskPerformer
+      {
+        Id = 1,
+        FirstName = user.FirstName,
+        LastName = user.LastName,
+        DisplayName = user.LastName + " " + user.FirstName,
+        Email = user.Email
+      }
+    };
+    await _context.SaveChangesAsync();
+    //Act
+    var response = await _client.PatchAsync($"/Todo/{todoInDb.Id}?userId={user.Id}", null);
+    //Assert
+    response.EnsureSuccessStatusCode();
+    var body = await response.Content.ReadAsStreamAsync();
+    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+    var result = await JsonSerializer.DeserializeAsync<TodoItemDto>(body, options);
+    result.Should().BeEquivalentTo(expected);
+  }
+  [Fact]
+  public async Task AssignTaskToUser_UserAlreadyAssigned()
+  {
+    //Arrange
+    var todoInDb = (await AddTodo()).Model;
+    var user = await AddUser();
+    user.Tasks.Add(todoInDb);
+    await _context.SaveChangesAsync();
+    //Act
+    var response = await _client.PatchAsync($"/Todo/{todoInDb.Id}?userId={user.Id}", null);
+    //Assert
+    response.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
+  }
+  [Fact]
+  public async Task AssignTaskToUser_TodoItemNotFound()
+  {
+    //Arrange
+    var user = await AddUser();
+    await _context.SaveChangesAsync();
+    //Act
+    var response = await _client.PatchAsync($"/Todo/666?userId={user.Id}", null);
+    //Assert
+    response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+  }
+  [Fact]
+  public async Task AssignTaskToUser_UserItemNotFound()
+  {
+    //Arrange
+    var todoInDb = (await AddTodo()).Model;
+    await _context.SaveChangesAsync();
+    //Act
+    var response = await _client.PatchAsync($"/Todo/{todoInDb.Id}?userId=666", null);
+    //Assert
+    response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+  }
 }

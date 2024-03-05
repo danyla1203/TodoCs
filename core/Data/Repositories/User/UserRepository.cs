@@ -10,6 +10,14 @@ public class UserRepository : BaseRepository<User>, IUserRepository
           : base(context)
     { }
 
+    public Task<User?> GetById(int id, bool includeTasks = false)
+    {
+        var query = _table.Where(user => user.Id == id);
+        return includeTasks ? 
+            query.Include(user => user.Tasks).FirstOrDefaultAsync() : 
+            query.FirstOrDefaultAsync();
+    }
+
     public async Task<User?> FindUserByEmail(string email)
     {
         return await _table.FirstOrDefaultAsync(user => user.Email == email);
